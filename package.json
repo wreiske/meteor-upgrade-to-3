@@ -40,7 +40,8 @@
   "files": [
     "dist/",
     "bin/",
-    "README.md"
+    "README.md",
+    "CONTRIBUTING.md"
   ],
   "dependencies": {
     "@babel/core": "^7.28.4",
