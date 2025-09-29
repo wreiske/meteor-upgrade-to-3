@@ -31,6 +31,7 @@ export class AsyncApiPlugin extends BasePlugin {
     };
 
     // Track functions that need to be made async
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const functionsToMakeAsync = new Set<any>();
 
     // Find and transform collection method calls

@@ -12,7 +12,8 @@ import { addAwaitAndMakeAsync, makeFunctionAsync } from './async-utils';
  */
 export class CursorAsyncPlugin extends BasePlugin {
   name = 'cursor-async';
-  description = 'Transform cursor methods to async versions (count -> countAsync, etc.) and add async/await';
+  description =
+    'Transform cursor methods to async versions (count -> countAsync, etc.) and add async/await';
 
   transform: Transform = (fileInfo, api, _options) => {
     const j = api.jscodeshift;
@@ -28,6 +29,7 @@ export class CursorAsyncPlugin extends BasePlugin {
     };
 
     // Track functions that need to be made async
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const functionsToMakeAsync = new Set<any>();
 
     // Find and transform cursor method calls
