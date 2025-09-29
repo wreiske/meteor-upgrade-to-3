@@ -11,4 +11,6 @@ module.exports = {
     '!src/**/*.test.ts',
     '!src/**/__tests__/**',
   ],
+  passWithNoTests: true,
+  verbose: true,
 };

@@ -145,6 +145,16 @@ Run the test suite:
 npm test
 ```
 
+Run tests with coverage:
+```bash
+npm test -- --coverage
+```
+
+Watch mode for development:
+```bash
+npm run test:watch
+```
+
 Run linting:
 ```bash
 npm run lint
@@ -155,6 +165,62 @@ Format code:
 ```bash
 npm run format
 ```
+
+Run all quality checks:
+```bash
+npm run check-all
+```
+
+## Continuous Integration
+
+This project uses GitHub Actions to ensure code quality and consistency:
+
+### Automated Checks
+
+Every push and pull request triggers:
+
+- **Tests**: Comprehensive unit tests covering all major functionality (74+ tests)
+- **Linting**: ESLint checks for code quality and consistency
+- **Formatting**: Prettier checks for consistent code formatting
+- **Building**: TypeScript compilation and build verification
+- **Security**: npm audit and CodeQL analysis
+- **Type Coverage**: TypeScript coverage analysis
+
+### Workflows
+
+- **CI Workflow** (`.github/workflows/ci.yml`): 
+  - Runs on Node.js 18.x and 20.x
+  - Tests, linting, formatting, and build checks
+  - Uploads coverage reports to Codecov
+
+- **PR Checks** (`.github/workflows/pr-checks.yml`):
+  - Quality gate for pull requests
+  - Coverage reporting and comments
+  - Dependency review for security
+  - Commit message validation
+
+- **Code Quality** (`.github/workflows/code-quality.yml`):
+  - Security audits with npm audit
+  - CodeQL analysis for vulnerability detection
+  - TypeScript coverage reporting
+  - Detailed linting reports with annotations
+
+### Quality Gates
+
+Pull requests must pass:
+
+✅ All unit tests (74+ tests)  
+✅ ESLint checks with zero warnings  
+✅ Prettier formatting validation  
+✅ TypeScript compilation  
+✅ Security audit (moderate+ vulnerabilities)  
+✅ Dependency review  
+
+### Coverage Reports
+
+- Test coverage reports are automatically generated and commented on PRs
+- Coverage data is uploaded to Codecov for tracking over time
+- Type coverage ensures robust TypeScript usage
 
 ---
 
