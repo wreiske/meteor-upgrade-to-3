@@ -1,0 +1,73 @@
+{
+  "name": "meteor-upgrade-to-3",
+  "version": "1.0.0",
+  "description": "Zero-DRAMA codemods to migrate Meteor 2.x → 3.x (Fibers → async/await), plus guardrails, reports, and git-friendly commits.",
+  "main": "dist/index.js",
+  "bin": {
+    "meteor-upgrade-to-3": "./bin/meteor-upgrade-to-3.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node ./bin/meteor-upgrade-to-3.js",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "lint:check": "eslint src/**/*.ts --max-warnings 0",
+    "format": "prettier --write src/**/*.ts",
+    "format:check": "prettier --check src/**/*.ts",
+    "check-all": "npm run lint:check && npm run format:check && npm run build",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "clean": "rm -rf dist/",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "meteor",
+    "codemod",
+    "migration",
+    "async",
+    "fibers",
+    "cli",
+    "ast",
+    "babel",
+    "jscodeshift"
+  ],
+  "author": "wreiske",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "files": [
+    "dist/",
+    "bin/",
+    "README.md"
+  ],
+  "dependencies": {
+    "@babel/core": "^7.28.4",
+    "@babel/parser": "^7.28.4",
+    "@babel/traverse": "^7.28.4",
+    "@babel/types": "^7.28.4",
+    "chalk": "^5.6.2",
+    "commander": "^14.0.1",
+    "eslint": "^9.36.0",
+    "fs-extra": "^11.3.2",
+    "globby": "^14.1.0",
+    "jscodeshift": "^17.3.0",
+    "prettier": "^3.6.2",
+    "simple-git": "^3.28.0",
+    "ts-morph": "^27.0.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/jest": "^30.0.0",
+    "@types/jscodeshift": "^17.3.0",
+    "@types/node": "^24.5.2",
+    "@typescript-eslint/eslint-plugin": "^8.44.1",
+    "@typescript-eslint/parser": "^8.44.1",
+    "eslint-config-prettier": "^10.1.8",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  }
+}
