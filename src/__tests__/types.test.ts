@@ -8,7 +8,7 @@ describe('Types', () => {
         path: 'test.js',
         source: 'const test = 1;',
         hasChanges: true,
-        changes: []
+        changes: [],
       };
 
       expect(result.path).toBe('test.js');
@@ -25,7 +25,7 @@ describe('Types', () => {
         description: 'Added async keyword',
         line: 5,
         column: 10,
-        newCode: 'async function'
+        newCode: 'async function',
       };
 
       expect(change.type).toBe('add');
@@ -41,7 +41,7 @@ describe('Types', () => {
         description: 'Changed to async method',
         line: 3,
         oldCode: 'findOne()',
-        newCode: 'await findOneAsync()'
+        newCode: 'await findOneAsync()',
       };
 
       expect(change.type).toBe('modify');
@@ -53,7 +53,7 @@ describe('Types', () => {
       const change: Change = {
         type: 'remove',
         description: 'Removed callback parameter',
-        oldCode: 'function(err, result) {}'
+        oldCode: 'function(err, result) {}',
       };
 
       expect(change.type).toBe('remove');
@@ -65,7 +65,7 @@ describe('Types', () => {
     class TestPlugin extends BasePlugin {
       name = 'test-plugin';
       description = 'Test plugin';
-      
+
       transform: Transform = (fileInfo) => {
         return fileInfo.source;
       };
@@ -74,19 +74,19 @@ describe('Types', () => {
     it('should accept options in constructor', () => {
       const options = { test: true };
       const plugin = new TestPlugin(options);
-      
+
       expect(plugin.options).toEqual(options);
     });
 
     it('should work without options', () => {
       const plugin = new TestPlugin();
-      
+
       expect(plugin.options).toBeUndefined();
     });
 
     it('should implement Plugin interface', () => {
       const plugin = new TestPlugin();
-      
+
       expect(plugin.name).toBe('test-plugin');
       expect(plugin.description).toBe('Test plugin');
       expect(typeof plugin.transform).toBe('function');
@@ -98,7 +98,7 @@ describe('Types', () => {
       const plugin: Plugin = {
         name: 'test',
         description: 'Test plugin',
-        transform: (fileInfo) => fileInfo.source
+        transform: (fileInfo) => fileInfo.source,
       };
 
       expect(plugin.name).toBe('test');
@@ -111,7 +111,7 @@ describe('Types', () => {
         name: 'test',
         description: 'Test plugin',
         transform: (fileInfo) => fileInfo.source,
-        options: { verbose: true }
+        options: { verbose: true },
       };
 
       expect(plugin.options).toEqual({ verbose: true });

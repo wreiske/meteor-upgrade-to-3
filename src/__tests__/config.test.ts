@@ -4,7 +4,12 @@ describe('Config', () => {
   describe('defaultConfig', () => {
     it('should have correct default values', () => {
       expect(defaultConfig.input).toEqual(['**/*.js', '**/*.ts']);
-      expect(defaultConfig.exclude).toEqual(['node_modules/**', 'dist/**', '**/*.test.*', '**/*.spec.*']);
+      expect(defaultConfig.exclude).toEqual([
+        'node_modules/**',
+        'dist/**',
+        '**/*.test.*',
+        '**/*.spec.*',
+      ]);
       expect(defaultConfig.dry).toBe(false);
       expect(defaultConfig.write).toBe(false);
       expect(defaultConfig.format).toBe(false);
