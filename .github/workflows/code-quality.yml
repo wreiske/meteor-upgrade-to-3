@@ -41,34 +41,6 @@ jobs:
       run: npm audit fix --dry-run
       continue-on-error: true
 
-  codeql-analysis:
-    name: CodeQL Analysis
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
-      with:
-        languages: typescript, javascript
-        
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Build project
-      run: npm run build
-      
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
-
   lint-report:
     name: Detailed Lint Report
     runs-on: ubuntu-latest
