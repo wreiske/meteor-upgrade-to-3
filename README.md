@@ -138,6 +138,43 @@ The CLI includes these built-in transform plugins:
 4. Ensure all tests pass: `npm test`
 5. Submit a pull request
 
+## Releasing & Publishing
+
+### For Maintainers
+
+This project uses automated npm publishing via GitHub Actions. To create a new release:
+
+1. **Ensure main branch is ready for release:**
+   ```bash
+   npm run check-all  # Verify all quality checks pass
+   npm test           # Ensure all tests pass
+   ```
+
+2. **Create and push a version tag:**
+   ```bash
+   git tag v1.2.3     # Replace with desired version
+   git push origin v1.2.3
+   ```
+
+3. **Automated publishing process:**
+   - GitHub Actions workflow triggers on the version tag
+   - Runs comprehensive pre-publish checks (build, test, lint)
+   - Automatically updates package.json version from git tag
+   - Publishes to npm with provenance for supply chain security
+   - Creates release summary with installation instructions
+
+4. **NPM Token Setup:**
+   - Repository requires `NPM_TOKEN` secret in GitHub Actions
+   - Token should have publish permissions for the `meteor-upgrade-to-3` package
+   - Configure in repository Settings → Secrets and Variables → Actions
+
+### Version Numbering
+
+Follow semantic versioning (semver):
+- **Major (v2.0.0)**: Breaking changes
+- **Minor (v1.1.0)**: New features, backward compatible
+- **Patch (v1.0.1)**: Bug fixes, backward compatible
+
 ### Testing
 
 Run the test suite:
@@ -204,6 +241,12 @@ Every push and pull request triggers:
   - CodeQL analysis for vulnerability detection
   - TypeScript coverage reporting
   - Detailed linting reports with annotations
+
+- **NPM Publish** (`.github/workflows/npm-publish.yml`):
+  - Automated publishing on release tags (v*)
+  - Pre-publish quality gates (build, test, lint)
+  - Automatic version synchronization from git tags
+  - NPM provenance for supply chain security
 
 ### Quality Gates
 
