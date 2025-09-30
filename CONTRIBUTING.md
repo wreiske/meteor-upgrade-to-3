@@ -198,6 +198,7 @@ export class MyCustomPlugin extends BasePlugin {
 - **cursor-async**: Cursor methods (`count` → `countAsync`, etc.)  
 - **meteor-call-async**: `Meteor.call` → `Meteor.callAsync`
 - **meteor-user-async**: `Meteor.user` → `Meteor.userAsync`
+- **roles-migration**: `alanning:roles` → `meteor/roles` with async API
 - **callback-to-await**: Callback patterns → `async/await` (planned)
 
 ### Adding New Transformations

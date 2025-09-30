@@ -30,7 +30,8 @@ program
   .option('--no-cursors', 'Disable cursor async transforms')
   .option('--no-callbacks', 'Disable callback to await transforms')
   .option('--no-meteor-call', 'Disable Meteor.call to callAsync transforms')
-  .option('--no-meteor-user', 'Disable Meteor.user to userAsync transforms')
+  .option('--no-meteor-user', 'Disable Meteor.user to userAsync transforms')  
+  .option('--no-roles', 'Disable alanning:roles to meteor/roles migration')
   .argument('[input...]', 'Input files or directories (default: **/*.js **/*.ts)')
   .action(async (input: string[], options: any) => {
     console.log(chalk.blue.bold('🚀 Meteor 2.x → 3.x Migration Tool'));
@@ -60,6 +61,7 @@ program
           callbacks: options.callbacks !== false,
           meteorCall: options.meteorCall !== false,
           meteorUser: options.meteorUser !== false,
+          roles: options.roles !== false,
         },
       };
       
