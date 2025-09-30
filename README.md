@@ -13,6 +13,7 @@ Meteor 3 replaces Fibers with standard Promises and introduces async versions of
   - Cursors: `count / fetch / forEach / map → *Async`
   - `Meteor.call → await Meteor.callAsync`
   - `Meteor.user() → await Meteor.userAsync()`
+  - `alanning:roles → meteor/roles` with async API
   - Generic `cb(err, res)` → `await` via `Meteor.promisify` (where helpful)
 - 🧠 **Scope-aware**: adds `async` to the nearest function, or uses `.then/.catch` if you prefer
 - 🧹 **Formatting**: optional Prettier + ESLint `--fix` pass
@@ -128,6 +129,7 @@ The CLI includes these built-in transform plugins:
 - **cursor-async**: Cursor methods (`count` → `countAsync`, etc.)
 - **meteor-call-async**: `Meteor.call` → `Meteor.callAsync`
 - **meteor-user-async**: `Meteor.user` → `Meteor.userAsync`
+- **roles-migration**: `alanning:roles` → `meteor/roles` with async API
 - **callback-to-await**: Callback patterns → `async/await` (planned)
 
 ### Contributing

@@ -37,6 +37,7 @@ export interface MeteorUpgradeConfig {
     callbacks?: boolean;
     meteorCall?: boolean;
     meteorUser?: boolean;
+    roles?: boolean;
   };
 }
 
@@ -59,5 +60,6 @@ export const defaultConfig: MeteorUpgradeConfig = {
     callbacks: true,
     meteorCall: true,
     meteorUser: true,
+    roles: true,
   },
 };

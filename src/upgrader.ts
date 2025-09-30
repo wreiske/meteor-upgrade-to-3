@@ -41,6 +41,9 @@ export class MeteorUpgrader {
     if (this.config.transforms?.callbacks !== false) {
       pluginRegistry.register(new plugins.CallbackToAwaitPlugin());
     }
+    if (this.config.transforms?.roles !== false) {
+      pluginRegistry.register(new plugins.RolesMigrationPlugin());
+    }
   }
   
   async run(): Promise<void> {
