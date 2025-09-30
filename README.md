@@ -147,7 +147,7 @@ The tool includes a comprehensive package mapping system that analyzes your proj
 
 #### Package Mapping File Format
 
-The `package-mapping.json` file in the repository root contains the migration information:
+The `package-mapping.json` file in the repository root contains verified migration information for well-known packages:
 
 ```json
 {
@@ -161,13 +161,14 @@ The `package-mapping.json` file in the repository root contains the migration in
       "automaticMigration": true,
       "category": "authentication"
     },
-    "aldeed:collection2": {
+    "some-package:example": {
       "status": "legacy",
-      "suggest": ["simpl-schema", "collection2-core"],
-      "notes": "Schema validation needs manual refactor. Consider simpl-schema for client-side validation and collection2-core for server-side.",
-      "migrationComplexity": "high",
+      "suggest": [],
+      "versionBump": "2.1.0",
+      "notes": "Requires version 2.1.0+ for Meteor 3 compatibility. Update to the latest version.",
+      "migrationComplexity": "low",
       "automaticMigration": false,
-      "category": "validation"
+      "category": "other"
     }
   }
 }
@@ -175,14 +176,18 @@ The `package-mapping.json` file in the repository root contains the migration in
 
 #### Contributing Package Mappings
 
+**Important**: Only add packages with verified Meteor 3 compatibility information. Do not make assumptions about package compatibility.
+
 To contribute package migration information:
 
-1. **Add or update entries** in `package-mapping.json`
-2. **Follow the schema** defined in `package-mapping.schema.json`
-3. **Test your changes** by running the tool on a project that uses the packages
-4. **Include these fields** for each package:
+1. **Verify compatibility** by testing the package with Meteor 3
+2. **Add or update entries** in `package-mapping.json` only for confirmed cases
+3. **Follow the schema** defined in `package-mapping.schema.json`
+4. **Test your changes** by running the tool on a project that uses the packages
+5. **Include these fields** for each package:
    - `status`: Current compatibility status
-   - `suggest`: Array of recommended alternatives
+   - `suggest`: Array of recommended alternatives (empty if just needs version bump)
+   - `versionBump`: Minimum version required for Meteor 3 (optional)
    - `notes`: Migration guidance and context
    - `migrationComplexity`: "low", "medium", or "high"
    - `automaticMigration`: Whether automatic migration is available

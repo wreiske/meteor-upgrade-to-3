@@ -33,6 +33,7 @@ export interface PackageMigrationInfo {
   migrationComplexity: MigrationComplexity;
   automaticMigration: boolean;
   category: PackageCategory;
+  versionBump?: string; // Minimum version required for Meteor 3 compatibility
   lastUpdated?: string;
   meteor3Tested?: boolean;
   communityNotes?: CommunityNote[];

@@ -421,6 +421,10 @@ export class MeteorUpgrader {
       console.log(chalk.red('🚫 Deprecated packages:'));
       byStatus.deprecated.forEach((issue: any) => {
         console.log(chalk.red(`  • ${issue.packageName}`));
+        const packageInfo = this.packageMappingService.getPackageInfo(issue.packageName);
+        if (packageInfo?.versionBump) {
+          console.log(chalk.gray(`    Version required: ${packageInfo.versionBump}+`));
+        }
         const suggestions = this.packageMappingService.getMigrationSuggestions(issue.packageName);
         if (suggestions.length > 0) {
           console.log(chalk.gray(`    Suggested alternatives: ${suggestions.join(', ')}`));
@@ -435,6 +439,10 @@ export class MeteorUpgrader {
       console.log(chalk.yellow('⚡ Legacy packages (may need updates):'));
       byStatus.legacy.forEach((issue: any) => {
         console.log(chalk.yellow(`  • ${issue.packageName}`));
+        const packageInfo = this.packageMappingService.getPackageInfo(issue.packageName);
+        if (packageInfo?.versionBump) {
+          console.log(chalk.gray(`    Version required: ${packageInfo.versionBump}+`));
+        }
         const suggestions = this.packageMappingService.getMigrationSuggestions(issue.packageName);
         if (suggestions.length > 0) {
           console.log(chalk.gray(`    Suggested alternatives: ${suggestions.join(', ')}`));
@@ -449,6 +457,10 @@ export class MeteorUpgrader {
       console.log(chalk.blue('🔄 Replaced packages:'));
       byStatus.replaced.forEach((issue: any) => {
         console.log(chalk.blue(`  • ${issue.packageName}`));
+        const packageInfo = this.packageMappingService.getPackageInfo(issue.packageName);
+        if (packageInfo?.versionBump) {
+          console.log(chalk.gray(`    Version required: ${packageInfo.versionBump}+`));
+        }
         const suggestions = this.packageMappingService.getMigrationSuggestions(issue.packageName);
         if (suggestions.length > 0) {
           console.log(chalk.gray(`    Use instead: ${suggestions.join(', ')}`));

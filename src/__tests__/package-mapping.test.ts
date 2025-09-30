@@ -34,13 +34,14 @@ describe('PackageMappingService', () => {
           automaticMigration: true,
           category: 'authentication',
         },
-        'aldeed:collection2': {
+        'test:package': {
           status: 'legacy',
-          suggest: ['simpl-schema'],
-          notes: 'Schema validation needs manual refactor',
-          migrationComplexity: 'high',
+          suggest: [],
+          versionBump: '2.1.0',
+          notes: 'Requires version 2.1.0+ for compatibility',
+          migrationComplexity: 'low',
           automaticMigration: false,
-          category: 'validation',
+          category: 'other',
         },
         'meteor/accounts-password': {
           status: 'ok',
@@ -230,15 +231,15 @@ describe('PackageMappingService', () => {
     it('should generate report for detected packages', () => {
       const detectedPackages = [
         'alanning:roles',
-        'aldeed:collection2',
+        'test:package',
         'meteor/accounts-password',
       ];
       const report = service.generateMigrationReport(detectedPackages);
 
       expect(report.totalPackages).toBe(3);
-      expect(report.problemPackages).toBe(2); // alanning:roles and aldeed:collection2
+      expect(report.problemPackages).toBe(2); // alanning:roles and test:package
       expect(report.packageIssues).toHaveLength(2);
-      expect(report.suggestions).toHaveLength(2); // alanning:roles and aldeed:collection2 have suggestions
+      expect(report.suggestions).toHaveLength(1); // only alanning:roles has suggestions
     });
 
     it('should handle empty package list', () => {
@@ -273,7 +274,7 @@ describe('PackageMappingService', () => {
 
       expect(packageNames).toEqual([
         'alanning:roles',
-        'aldeed:collection2',
+        'test:package',
         'meteor/accounts-password',
       ]);
     });
