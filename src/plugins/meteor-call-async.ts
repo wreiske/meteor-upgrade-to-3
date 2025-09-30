@@ -45,22 +45,28 @@ export class MeteorCallAsyncPlugin extends BasePlugin {
 
         if (args.length > 0) {
           const lastArg = args[args.length - 1];
-          
+
           // Check if last argument is a function (callback)
-          if (j.FunctionExpression.check(lastArg) || j.ArrowFunctionExpression.check(lastArg)) {
+          if (
+            j.FunctionExpression.check(lastArg) ||
+            j.ArrowFunctionExpression.check(lastArg)
+          ) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const func = lastArg as any;
-            
+
             // Check if it follows (error, result) callback pattern
             if (func.params && func.params.length === 2) {
               const [firstParam, secondParam] = func.params;
-              
-              if (j.Identifier.check(firstParam) && j.Identifier.check(secondParam)) {
+
+              if (
+                j.Identifier.check(firstParam) &&
+                j.Identifier.check(secondParam)
+              ) {
                 errorParam = firstParam.name;
                 resultParam = secondParam.name;
                 callbackFunction = func;
                 callbackBody = func.body;
-                
+
                 // Remove the callback from arguments
                 args.pop();
               }
@@ -83,7 +89,13 @@ export class MeteorCallAsyncPlugin extends BasePlugin {
 
         // If we had a callback, now transform the whole statement to use try/catch
         if (callbackFunction && callbackBody && errorParam && resultParam) {
-          transformCallbackToTryCatch(j, path, callbackBody, errorParam, resultParam);
+          transformCallbackToTryCatch(
+            j,
+            path,
+            callbackBody,
+            errorParam,
+            resultParam
+          );
         }
       });
 
@@ -99,8 +111,16 @@ export class MeteorCallAsyncPlugin extends BasePlugin {
 /**
  * Transform a Meteor.callAsync with callback to try/catch pattern
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function transformCallbackToTryCatch(j: any, callPath: any, callbackBody: any, errorParam: string, resultParam: string) {
+function transformCallbackToTryCatch(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  j: any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  callPath: any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  callbackBody: any,
+  errorParam: string,
+  resultParam: string
+) {
   // Find the statement containing this call
   let statementPath = callPath;
   while (statementPath && !j.Statement.check(statementPath.value)) {
@@ -113,20 +133,24 @@ function transformCallbackToTryCatch(j: any, callPath: any, callbackBody: any, e
 
   // Extract the await expression (which should be the call)
   const awaitExpression = callPath.value;
-  
+
   // Create result variable assignment
   const resultAssignment = j.variableDeclaration('const', [
-    j.variableDeclarator(j.identifier(resultParam), awaitExpression)
+    j.variableDeclarator(j.identifier(resultParam), awaitExpression),
   ]);
 
   // Create try block statements
   const tryStatements = [resultAssignment];
-  
+
   // Extract success statements from callback body
-  const successStatements = extractSuccessStatements(j, callbackBody, errorParam);
+  const successStatements = extractSuccessStatements(
+    j,
+    callbackBody,
+    errorParam
+  );
   tryStatements.push(...successStatements);
 
-  // Extract error statements from callback body  
+  // Extract error statements from callback body
   const errorStatements = extractErrorStatements(j, callbackBody, errorParam);
 
   // Create try/catch statement
@@ -146,10 +170,16 @@ function transformCallbackToTryCatch(j: any, callPath: any, callbackBody: any, e
 /**
  * Extract statements that should run on success (else branch)
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function extractSuccessStatements(j: any, callbackBody: any, errorParam: string): any[] {
+function extractSuccessStatements(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  j: any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  callbackBody: any,
+  errorParam: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): any[] {
   const statements = [];
-  
+
   if (j.BlockStatement.check(callbackBody)) {
     for (const stmt of callbackBody.body) {
       if (j.IfStatement.check(stmt)) {
@@ -167,17 +197,23 @@ function extractSuccessStatements(j: any, callbackBody: any, errorParam: string)
       }
     }
   }
-  
+
   return statements;
 }
 
 /**
  * Extract statements that should run on error (if branch)
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function extractErrorStatements(j: any, callbackBody: any, errorParam: string): any[] {
+function extractErrorStatements(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  j: any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  callbackBody: any,
+  errorParam: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): any[] {
   const statements = [];
-  
+
   if (j.BlockStatement.check(callbackBody)) {
     for (const stmt of callbackBody.body) {
       if (j.IfStatement.check(stmt)) {
@@ -192,14 +228,19 @@ function extractErrorStatements(j: any, callbackBody: any, errorParam: string): 
       }
     }
   }
-  
+
   return statements;
 }
 
 /**
  * Check if an expression is testing for error (like `if (error)` or `if (err)`)
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isErrorCheck(j: any, expression: any, errorParam: string): boolean {
+function isErrorCheck(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  j: any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  expression: any,
+  errorParam: string
+): boolean {
   return j.Identifier.check(expression) && expression.name === errorParam;
 }
