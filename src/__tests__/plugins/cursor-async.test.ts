@@ -98,6 +98,41 @@ Users.find().forEach(function(doc) {
         expect(result).toContain('mapAsync');
         expect(result).toContain('await');
       });
+
+      it('should transform map on cursor variable with async callback', () => {
+        const input = `const workspaceMcpLinks = WorkspaceMCPServerLinks.find({
+  workspaceId: workspace ? workspace._id : null,
+});
+mcpTools = workspaceMcpLinks.map(function (serverLink) {
+  const mcpServer = MCPServers.findOneAsync({
+    _id: serverLink.serverId,
+  });
+  return getOpenAiMcpToolDefinition({ label: serverLink.name, url: mcpServer.url });
+});`;
+        const result = runTransform(input);
+        
+        expect(result).toContain('await workspaceMcpLinks.mapAsync');
+        expect(result).toContain('async function(serverLink)');
+      });
+
+      it('should handle assignment expressions with cursor variables', () => {
+        const input = `let cursor;
+cursor = Users.find({});
+const results = cursor.map(user => user.name);`;
+        const result = runTransform(input);
+        
+        expect(result).toContain('await cursor.mapAsync');
+      });
+
+      it('should transform forEach on cursor variable', () => {
+        const input = `const users = Users.find({});
+users.forEach(function(user) {
+  console.log(user.name);
+});`;
+        const result = runTransform(input);
+        
+        expect(result).toContain('await users.forEachAsync');
+      });
     });
 
     describe('function async conversion', () => {

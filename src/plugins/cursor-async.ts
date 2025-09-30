@@ -32,7 +32,40 @@ export class CursorAsyncPlugin extends BasePlugin {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const functionsToMakeAsync = new Set<any>();
 
-    // Find and transform cursor method calls
+    // Track cursor variables (variables assigned from .find() calls)
+    const cursorVariables = new Set<string>();
+
+    // First pass: Find variables assigned from .find() calls
+    root.find(j.VariableDeclarator).forEach((path) => {
+      const { node } = path;
+      if (
+        node.init &&
+        node.init.type === 'CallExpression' &&
+        node.init.callee
+      ) {
+        const initSource = j(node.init).toSource();
+        if (initSource.includes('.find(')) {
+          if (node.id && node.id.type === 'Identifier') {
+            cursorVariables.add(node.id.name);
+          }
+        }
+      }
+    });
+
+    // Also look for assignment expressions
+    root.find(j.AssignmentExpression).forEach((path) => {
+      const { node } = path;
+      if (node.right && node.right.type === 'CallExpression') {
+        const rightSource = j(node.right).toSource();
+        if (rightSource.includes('.find(')) {
+          if (node.left && node.left.type === 'Identifier') {
+            cursorVariables.add(node.left.name);
+          }
+        }
+      }
+    });
+
+    // Second pass: Find and transform cursor method calls
     Object.entries(methodMappings).forEach(([oldMethod, newMethod]) => {
       root
         .find(j.CallExpression, {
@@ -48,15 +81,37 @@ export class CursorAsyncPlugin extends BasePlugin {
             property: { name: string };
           };
 
-          // Simple heuristic: if the object looks like a cursor call
-          // In a real implementation, we'd do proper type analysis
+          let shouldTransform = false;
           const objSource = j(memberExpr.object as never).toSource();
+
+          // Check if it's a direct cursor call
           if (objSource.includes('.find(') || objSource.includes('.findOne(')) {
+            shouldTransform = true;
+          }
+          // Check if it's a cursor variable
+          else if (
+            memberExpr.object &&
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (memberExpr.object as any).type === 'Identifier'
+          ) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const varName = (memberExpr.object as any as { name: string }).name;
+            if (cursorVariables.has(varName)) {
+              shouldTransform = true;
+            }
+          }
+
+          if (shouldTransform) {
             memberExpr.property.name = newMethod;
             hasChanges = true;
 
             // Add await and make containing function async if needed
             addAwaitAndMakeAsync(j, path, functionsToMakeAsync);
+
+            // For map and forEach, check if the callback contains async operations
+            if (oldMethod === 'map' || oldMethod === 'forEach') {
+              this.handleAsyncCallback(j, node);
+            }
           }
         });
     });
@@ -68,4 +123,36 @@ export class CursorAsyncPlugin extends BasePlugin {
 
     return hasChanges ? root.toSource() : undefined;
   };
+
+  // Helper method to handle async callbacks
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private handleAsyncCallback(j: any, callNode: any): void {
+    if (callNode.arguments && callNode.arguments.length > 0) {
+      const callback = callNode.arguments[0];
+
+      // Check if callback is a function and contains async operations
+      if (
+        callback.type === 'FunctionExpression' ||
+        callback.type === 'ArrowFunctionExpression'
+      ) {
+        // Look for async operations in the callback body
+        const callbackSource = j(callback).toSource();
+
+        // Check for patterns that indicate async operations
+        if (
+          callbackSource.includes('findOneAsync') ||
+          callbackSource.includes('insertAsync') ||
+          callbackSource.includes('updateAsync') ||
+          callbackSource.includes('removeAsync') ||
+          callbackSource.includes('upsertAsync') ||
+          callbackSource.includes('await ')
+        ) {
+          // Make the callback function async if it isn't already
+          if (!callback.async) {
+            callback.async = true;
+          }
+        }
+      }
+    }
+  }
 }
