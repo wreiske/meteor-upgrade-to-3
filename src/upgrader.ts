@@ -44,6 +44,9 @@ export class MeteorUpgrader {
     if (this.config.transforms?.roles !== false) {
       pluginRegistry.register(new plugins.RolesMigrationPlugin());
     }
+    if (this.config.transforms?.fastrender !== false) {
+      pluginRegistry.register(new plugins.FastRenderAsyncPlugin());
+    }
   }
   
   async run(): Promise<void> {

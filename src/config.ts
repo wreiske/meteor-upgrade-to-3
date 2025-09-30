@@ -38,6 +38,7 @@ export interface MeteorUpgradeConfig {
     meteorCall?: boolean;
     meteorUser?: boolean;
     roles?: boolean;
+    fastrender?: boolean;
   };
 }
 
@@ -61,5 +62,6 @@ export const defaultConfig: MeteorUpgradeConfig = {
     meteorCall: true,
     meteorUser: true,
     roles: true,
+    fastrender: true,
   },
 };

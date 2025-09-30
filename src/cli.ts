@@ -32,6 +32,7 @@ program
   .option('--no-meteor-call', 'Disable Meteor.call to callAsync transforms')
   .option('--no-meteor-user', 'Disable Meteor.user to userAsync transforms')  
   .option('--no-roles', 'Disable alanning:roles to meteor/roles migration')
+  .option('--no-fastrender', 'Disable FastRender async transforms')
   .argument('[input...]', 'Input files or directories (default: **/*.js **/*.ts)')
   .action(async (input: string[], options: any) => {
     console.log(chalk.blue.bold('🚀 Meteor 2.x → 3.x Migration Tool'));
@@ -62,6 +63,7 @@ program
           meteorCall: options.meteorCall !== false,
           meteorUser: options.meteorUser !== false,
           roles: options.roles !== false,
+          fastrender: options.fastrender !== false,
         },
       };
       
