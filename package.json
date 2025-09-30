@@ -34,6 +34,10 @@
   ],
   "author": "wreiske",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wreiske/meteor-upgrade-to-3.git"
+  },
   "engines": {
     "node": ">=14.0.0"
   },
