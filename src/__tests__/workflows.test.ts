@@ -2,6 +2,25 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
 
+interface WorkflowConfig {
+  name: string;
+  on: {
+    push: {
+      tags: string[];
+    };
+  };
+  jobs: {
+    publish: {
+      steps: Array<{
+        name: string;
+        env?: Record<string, string>;
+        id?: string;
+        run?: string;
+      }>;
+    };
+  };
+}
+
 describe('GitHub Actions Workflows', () => {
   const workflowsDir = path.join(__dirname, '../../.github/workflows');
 
@@ -19,18 +38,18 @@ describe('GitHub Actions Workflows', () => {
 
     it('should trigger on version tags', () => {
       const content = fs.readFileSync(workflowPath, 'utf8');
-      const workflow = yaml.load(content) as any;
-      
+      const workflow = yaml.load(content) as WorkflowConfig;
+
       expect(workflow.on.push.tags).toEqual(['v*']);
     });
 
     it('should include quality checks before publishing', () => {
       const content = fs.readFileSync(workflowPath, 'utf8');
-      const workflow = yaml.load(content) as any;
-      
+      const workflow = yaml.load(content) as WorkflowConfig;
+
       const steps = workflow.jobs.publish.steps;
-      const stepNames = steps.map((step: any) => step.name);
-      
+      const stepNames = steps.map((step) => step.name);
+
       expect(stepNames).toContain('Run all quality checks');
       expect(stepNames).toContain('Run tests');
       expect(stepNames).toContain('Build project');
@@ -39,25 +58,27 @@ describe('GitHub Actions Workflows', () => {
 
     it('should use NPM_TOKEN for authentication', () => {
       const content = fs.readFileSync(workflowPath, 'utf8');
-      const workflow = yaml.load(content) as any;
-      
+      const workflow = yaml.load(content) as WorkflowConfig;
+
       const publishStep = workflow.jobs.publish.steps.find(
-        (step: any) => step.name === 'Publish to NPM with provenance'
+        (step) => step.name === 'Publish to NPM with provenance'
       );
-      
-      expect(publishStep.env.NODE_AUTH_TOKEN).toBe('${{ secrets.NPM_TOKEN }}');
+
+      expect(publishStep?.env?.NODE_AUTH_TOKEN).toBe(
+        '${{ secrets.NPM_TOKEN }}'
+      );
     });
 
     it('should handle version extraction from tags', () => {
       const content = fs.readFileSync(workflowPath, 'utf8');
-      const workflow = yaml.load(content) as any;
-      
+      const workflow = yaml.load(content) as WorkflowConfig;
+
       const extractStep = workflow.jobs.publish.steps.find(
-        (step: any) => step.name === 'Extract version from tag'
+        (step) => step.name === 'Extract version from tag'
       );
-      
-      expect(extractStep.id).toBe('extract_version');
-      expect(extractStep.run).toContain('VERSION=${GITHUB_REF#refs/tags/v}');
+
+      expect(extractStep?.id).toBe('extract_version');
+      expect(extractStep?.run).toContain('VERSION=${GITHUB_REF#refs/tags/v}');
     });
   });
 
@@ -67,11 +88,15 @@ describe('GitHub Actions Workflows', () => {
     });
 
     it('should have code quality workflow', () => {
-      expect(fs.existsSync(path.join(workflowsDir, 'code-quality.yml'))).toBe(true);
+      expect(fs.existsSync(path.join(workflowsDir, 'code-quality.yml'))).toBe(
+        true
+      );
     });
 
     it('should have PR checks workflow', () => {
-      expect(fs.existsSync(path.join(workflowsDir, 'pr-checks.yml'))).toBe(true);
+      expect(fs.existsSync(path.join(workflowsDir, 'pr-checks.yml'))).toBe(
+        true
+      );
     });
   });
 });
