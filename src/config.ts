@@ -22,6 +22,10 @@ export interface MeteorUpgradeConfig {
   reportPath?: string;
   verbose?: boolean;
   
+  // Package mapping options
+  packageMapping?: boolean;
+  packageMappingPath?: string;
+  
   // Transform preferences
   preferAwait?: boolean; // true for await, false for .then/.catch
   allowTopLevelAwait?: boolean;
@@ -55,6 +59,7 @@ export const defaultConfig: MeteorUpgradeConfig = {
   verbose: false,
   preferAwait: true,
   allowTopLevelAwait: false,
+  packageMapping: true,
   transforms: {
     asyncApi: true,
     cursors: true,

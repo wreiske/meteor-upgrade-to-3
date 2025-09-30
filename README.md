@@ -15,6 +15,7 @@ Meteor 3 replaces Fibers with standard Promises and introduces async versions of
   - `Meteor.user() → await Meteor.userAsync()`
   - `alanning:roles → meteor/roles` with async API
   - Generic `cb(err, res)` → `await` via `Meteor.promisify` (where helpful)
+- 📦 **Package compatibility analysis**: automatically detects your packages and provides Meteor 3 migration guidance
 - 🧠 **Scope-aware**: adds `async` to the nearest function, or uses `.then/.catch` if you prefer
 - 🧹 **Formatting**: optional Prettier + ESLint `--fix` pass
 - 🧪 **Dry runs** and HTML **reports** of every change
@@ -131,6 +132,66 @@ The CLI includes these built-in transform plugins:
 - **meteor-user-async**: `Meteor.user` → `Meteor.userAsync`
 - **roles-migration**: `alanning:roles` → `meteor/roles` with async API
 - **callback-to-await**: Callback patterns → `async/await` (planned)
+
+### Package Migration Mapping
+
+The tool includes a comprehensive package mapping system that analyzes your project's dependencies and provides migration guidance for Meteor 3 compatibility. This feature automatically detects packages in your `package.json` and `.meteor/packages` files and provides status information and migration suggestions.
+
+#### Package Status Types
+
+- **ok**: Package works with Meteor 3 without changes
+- **legacy**: Package may need updates but should work
+- **deprecated**: Package is no longer maintained
+- **replaced**: Package has been superseded or integrated into Meteor core
+- **incompatible**: Package will not work with Meteor 3
+
+#### Package Mapping File Format
+
+The `package-mapping.json` file in the repository root contains the migration information:
+
+```json
+{
+  "version": "1.0.0",
+  "packages": {
+    "alanning:roles": {
+      "status": "replaced",
+      "suggest": ["meteor/roles"],
+      "notes": "Built into Meteor 3 core. Update imports from 'meteor/alanning:roles' to 'meteor/roles' and use async versions of methods.",
+      "migrationComplexity": "medium",
+      "automaticMigration": true,
+      "category": "authentication"
+    },
+    "aldeed:collection2": {
+      "status": "legacy",
+      "suggest": ["simpl-schema", "collection2-core"],
+      "notes": "Schema validation needs manual refactor. Consider simpl-schema for client-side validation and collection2-core for server-side.",
+      "migrationComplexity": "high",
+      "automaticMigration": false,
+      "category": "validation"
+    }
+  }
+}
+```
+
+#### Contributing Package Mappings
+
+To contribute package migration information:
+
+1. **Add or update entries** in `package-mapping.json`
+2. **Follow the schema** defined in `package-mapping.schema.json`
+3. **Test your changes** by running the tool on a project that uses the packages
+4. **Include these fields** for each package:
+   - `status`: Current compatibility status
+   - `suggest`: Array of recommended alternatives
+   - `notes`: Migration guidance and context
+   - `migrationComplexity`: "low", "medium", or "high"
+   - `automaticMigration`: Whether automatic migration is available
+   - `category`: Package category for organization
+
+#### CLI Options
+
+- `--no-package-mapping`: Disable package mapping analysis
+- `--package-mapping-path <path>`: Use a custom package mapping file
 
 ### Contributing
 

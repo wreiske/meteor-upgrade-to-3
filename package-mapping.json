@@ -1,0 +1,127 @@
+{
+  "$schema": "./package-mapping.schema.json",
+  "version": "1.0.0",
+  "description": "Package mapping for Meteor 2.x to 3.x migration status and suggestions",
+  "packages": {
+    "alanning:roles": {
+      "status": "replaced",
+      "suggest": ["meteor/roles"],
+      "notes": "Built into Meteor 3 core. Update imports from 'meteor/alanning:roles' to 'meteor/roles' and use async versions of methods.",
+      "migrationComplexity": "medium",
+      "automaticMigration": true,
+      "category": "authentication"
+    },
+    "aldeed:collection2": {
+      "status": "legacy",
+      "suggest": ["simpl-schema", "collection2-core"],
+      "notes": "Schema validation needs manual refactor. Consider simpl-schema for client-side validation and collection2-core for server-side.",
+      "migrationComplexity": "high",
+      "automaticMigration": false,
+      "category": "validation"
+    },
+    "dburles:collection-helpers": {
+      "status": "deprecated", 
+      "suggest": ["meteor/mongo"],
+      "notes": "Use native Meteor 3 collection transforms or create utility functions instead.",
+      "migrationComplexity": "medium",
+      "automaticMigration": false,
+      "category": "database"
+    },
+    "iron:router": {
+      "status": "deprecated",
+      "suggest": ["react-router", "vue-router", "flow-router"],
+      "notes": "Iron Router is not maintained. Migrate to modern client-side routing solutions.",
+      "migrationComplexity": "high",
+      "automaticMigration": false,
+      "category": "routing"
+    },
+    "kadira:flow-router": {
+      "status": "legacy",
+      "suggest": ["ostrio:flow-router-extra", "react-router"],
+      "notes": "Original Flow Router is unmaintained. Consider ostrio:flow-router-extra or modern client-side routing.",
+      "migrationComplexity": "medium",
+      "automaticMigration": false,
+      "category": "routing"
+    },
+    "meteor/accounts-password": {
+      "status": "ok",
+      "suggest": [],
+      "notes": "Works with Meteor 3. Make sure to use async versions of methods.",
+      "migrationComplexity": "low",
+      "automaticMigration": true,
+      "category": "authentication"
+    },
+    "meteor/accounts-ui": {
+      "status": "legacy",
+      "suggest": ["@accounts/client", "custom-ui"],
+      "notes": "Blaze-based UI. Consider modern UI frameworks or custom implementation.",
+      "migrationComplexity": "medium",
+      "automaticMigration": false,
+      "category": "ui"
+    },
+    "meteorhacks:fast-render": {
+      "status": "deprecated",
+      "suggest": ["server-side-rendering", "static-generation"],
+      "notes": "Fast Render doesn't work with Meteor 3. Consider server-side rendering solutions.",
+      "migrationComplexity": "high",
+      "automaticMigration": false,
+      "category": "performance"
+    },
+    "matb33:collection-hooks": {
+      "status": "legacy",
+      "suggest": ["custom-hooks", "meteor/mongo-transforms"],
+      "notes": "May need updates for Meteor 3 async operations. Test thoroughly or implement custom hooks.",
+      "migrationComplexity": "high",
+      "automaticMigration": false,
+      "category": "database"
+    },
+    "reywood:publish-composite": {
+      "status": "legacy",
+      "suggest": ["custom-publications", "redis-oplog"],
+      "notes": "May need updates for async compatibility. Consider restructuring publications.",
+      "migrationComplexity": "medium",
+      "automaticMigration": false,
+      "category": "publication"
+    },
+    "aldeed:autoform": {
+      "status": "deprecated",
+      "suggest": ["uniforms", "react-hook-form", "formik"],
+      "notes": "Blaze-based forms. Migrate to modern form libraries for React/Vue.",
+      "migrationComplexity": "high",
+      "automaticMigration": false,
+      "category": "forms"
+    },
+    "peerlibrary:blaze-components": {
+      "status": "legacy",
+      "suggest": ["react", "vue", "svelte"],
+      "notes": "Consider migrating to modern component frameworks.",
+      "migrationComplexity": "high",
+      "automaticMigration": false,
+      "category": "ui"
+    },
+    "ostrio:files": {
+      "status": "ok",
+      "suggest": [],
+      "notes": "Should work with Meteor 3 with async method updates.",
+      "migrationComplexity": "low",
+      "automaticMigration": true,
+      "category": "files"
+    },
+    "meteor/reactive-var": {
+      "status": "ok",
+      "suggest": [],
+      "notes": "Core Meteor package, works with Meteor 3.",
+      "migrationComplexity": "low",
+      "automaticMigration": false,
+      "category": "reactivity"
+    },
+    "meteor/reactive-dict": {
+      "status": "ok",  
+      "suggest": [],
+      "notes": "Core Meteor package, works with Meteor 3.",
+      "migrationComplexity": "low",
+      "automaticMigration": false,
+      "category": "reactivity"
+    }
+  }
+}
