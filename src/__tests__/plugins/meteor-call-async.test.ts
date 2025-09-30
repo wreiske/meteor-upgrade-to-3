@@ -53,7 +53,74 @@ Meteor.call("methodName", param, function(error, result) {
         
         expect(result).toContain('Meteor.callAsync');
         expect(result).toContain('await');
-        // Callback should be removed or handled
+        expect(result).toContain('try {');
+        expect(result).toContain('} catch (error) {');
+        expect(result).toContain('const result = await Meteor.callAsync("methodName", param)');
+        expect(result).toContain('console.log(result)');
+        expect(result).toContain('console.error(error)');
+        // Callback should be removed
+        expect(result).not.toContain('function(error, result)');
+      });
+
+      it('should handle complex callback with multiple statements', () => {
+        const input = `
+Meteor.call('save_ami', host, port, user, pass, function (error, result) {
+  if (error) {
+    error_box.append('<p>Error saving server settings:</p>');
+    error_box.append(\`<p>\${error}</p>\`);
+    toastr.error(error, 'Error!');
+    $("#error").fadeIn();
+  } else {
+    $("#error").fadeOut();
+    console.log(result);
+    toastr.success(result, 'Saved!');
+  }
+});`;
+        const result = runTransform(input);
+        
+        expect(result).toContain('try {');
+        expect(result).toContain('} catch (error) {');
+        expect(result).toContain('const result = await Meteor.callAsync(\'save_ami\', host, port, user, pass)');
+        
+        // Success statements should be in try block
+        expect(result).toContain('$("#error").fadeOut()');
+        expect(result).toContain('console.log(result)');
+        expect(result).toContain('toastr.success(result, \'Saved!\')');
+        
+        // Error statements should be in catch block
+        expect(result).toContain('error_box.append(\'<p>Error saving server settings:</p>\')');
+        expect(result).toContain('toastr.error(error, \'Error!\')');
+        expect(result).toContain('$("#error").fadeIn()');
+      });
+
+      it('should handle arrow function callbacks', () => {
+        const input = `
+Meteor.call("methodName", param, (error, result) => {
+  if (error) console.error(error);
+  else console.log(result);
+});`;
+        const result = runTransform(input);
+        
+        expect(result).toContain('try {');
+        expect(result).toContain('} catch (error) {');
+        expect(result).toContain('const result = await Meteor.callAsync("methodName", param)');
+        expect(result).toContain('console.log(result)');
+        expect(result).toContain('console.error(error)');
+      });
+
+      it('should only transform callbacks with (error, result) pattern', () => {
+        const input = `
+Meteor.call("methodName", param, function(data) {
+  console.log(data);
+});`;
+        const result = runTransform(input);
+        
+        // Should still transform to callAsync and add await, but not handle callback
+        expect(result).toContain('Meteor.callAsync');
+        expect(result).toContain('await');
+        // Should not create try/catch since it's not (error, result) pattern
+        expect(result).not.toContain('try {');
+        expect(result).not.toContain('} catch');
       });
     });
 
