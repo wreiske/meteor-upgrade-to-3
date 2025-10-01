@@ -33,6 +33,7 @@ program
   .option('--no-meteor-user', 'Disable Meteor.user to userAsync transforms')  
   .option('--no-roles', 'Disable alanning:roles to meteor/roles migration')
   .option('--no-fastrender', 'Disable FastRender async transforms')
+  .option('--no-index-async', 'Disable _ensureIndex to createIndexAsync transforms')
   .option('--no-package-mapping', 'Disable package mapping analysis and suggestions')
   .option('--package-mapping-path <path>', 'Path to custom package mapping file')
   .argument('[input...]', 'Input files or directories (default: **/*.js **/*.ts)')
@@ -68,6 +69,7 @@ program
           meteorUser: options.meteorUser !== false,
           roles: options.roles !== false,
           fastrender: options.fastrender !== false,
+          indexAsync: options.indexAsync !== false,
         },
       };
       

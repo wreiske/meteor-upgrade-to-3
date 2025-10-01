@@ -5,3 +5,4 @@ export { MeteorUserAsyncPlugin } from './meteor-user-async';
 export { CallbackToAwaitPlugin } from './callback-to-await';
 export { RolesMigrationPlugin } from './roles-migration';
 export { FastRenderAsyncPlugin } from './fastrender-async';
+export { IndexAsyncPlugin } from './index-async';
