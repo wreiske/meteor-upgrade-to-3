@@ -52,6 +52,9 @@ export class MeteorUpgrader {
     if (this.config.transforms?.fastrender !== false) {
       pluginRegistry.register(new plugins.FastRenderAsyncPlugin());
     }
+    if (this.config.transforms?.indexAsync !== false) {
+      pluginRegistry.register(new plugins.IndexAsyncPlugin());
+    }
   }
   
   async run(): Promise<void> {
