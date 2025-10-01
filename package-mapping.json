@@ -1,0 +1,24 @@
+{
+  "$schema": "./package-mapping.schema.json",
+  "version": "1.0.0",
+  "description": "Package mapping for Meteor 2.x to 3.x migration status and suggestions",
+  "packages": {
+    "alanning:roles": {
+      "status": "replaced",
+      "suggest": ["meteor/roles"],
+      "notes": "Built into Meteor 3 core. Update imports from 'meteor/alanning:roles' to 'meteor/roles' and use async versions of methods.",
+      "migrationComplexity": "medium",
+      "automaticMigration": true,
+      "category": "authentication"
+    },
+    "ostrio:files": {
+      "status": "legacy",
+      "suggest": [],
+      "versionBump": "2.0.0",
+      "notes": "Requires version 2.0.0+ for Meteor 3 compatibility. Update to the latest version.",
+      "migrationComplexity": "low",
+      "automaticMigration": false,
+      "category": "files"
+    }
+  }
+}

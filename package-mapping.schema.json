@@ -1,0 +1,116 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Meteor Package Migration Mapping",
+  "description": "Schema for Meteor 2.x to 3.x package migration mapping file",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference"
+    },
+    "version": {
+      "type": "string",
+      "description": "Version of the mapping format",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the mapping file"
+    },
+    "packages": {
+      "type": "object",
+      "description": "Package mappings",
+      "patternProperties": {
+        "^[a-zA-Z0-9_.-]+:[a-zA-Z0-9_.-]+$|^meteor/[a-zA-Z0-9_.-]+$": {
+          "type": "object",
+          "description": "Package migration information",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": ["ok", "legacy", "deprecated", "replaced", "incompatible"],
+              "description": "Migration status of the package"
+            },
+            "suggest": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Suggested replacement packages or alternatives"
+            },
+            "versionBump": {
+              "type": "string",
+              "description": "Minimum version required for Meteor 3 compatibility (e.g., '2.0.0')"
+            },
+            "notes": {
+              "type": "string",
+              "description": "Migration notes and guidance"
+            },
+            "migrationComplexity": {
+              "type": "string",
+              "enum": ["low", "medium", "high"],
+              "description": "Complexity level of migration"
+            },
+            "automaticMigration": {
+              "type": "boolean",
+              "description": "Whether automatic migration is available"
+            },
+            "category": {
+              "type": "string",
+              "enum": [
+                "authentication",
+                "validation", 
+                "database",
+                "routing",
+                "ui",
+                "performance",
+                "publication",
+                "forms",
+                "files",
+                "reactivity",
+                "testing",
+                "deployment",
+                "other"
+              ],
+              "description": "Package category"
+            },
+            "lastUpdated": {
+              "type": "string",
+              "format": "date",
+              "description": "Last update date for this mapping entry"
+            },
+            "meteor3Tested": {
+              "type": "boolean",
+              "description": "Whether the package has been tested with Meteor 3"
+            },
+            "communityNotes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "author": {
+                    "type": "string"
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "date": {
+                    "type": "string",
+                    "format": "date"
+                  }
+                },
+                "required": ["note"],
+                "additionalProperties": false
+              },
+              "description": "Community contributed notes and experiences"
+            }
+          },
+          "required": ["status", "suggest", "notes", "migrationComplexity", "automaticMigration", "category"],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["version", "packages"],
+  "additionalProperties": false
+}

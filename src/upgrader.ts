@@ -9,6 +9,7 @@ import { promisify } from 'util';
 import { MeteorUpgradeConfig } from './config';
 import { pluginRegistry } from './plugin-registry';
 import { TransformResult } from './types';
+import { PackageMappingService } from './package-mapping';
 import * as plugins from './plugins';
 
 const execAsync = promisify(exec);
@@ -17,10 +18,14 @@ export class MeteorUpgrader {
   private config: MeteorUpgradeConfig;
   private git: SimpleGit;
   private results: TransformResult[] = [];
+  private packageMappingService: PackageMappingService;
   
   constructor(config: MeteorUpgradeConfig) {
     this.config = config;
     this.git = simpleGit();
+    this.packageMappingService = new PackageMappingService(
+      this.config.packageMappingPath ? dirname(this.config.packageMappingPath) : undefined
+    );
     this.registerPlugins();
   }
   
@@ -63,6 +68,11 @@ export class MeteorUpgrader {
       if (files.length === 0) {
         console.log(chalk.yellow('No files found to process. Check your input patterns.'));
         return;
+      }
+      
+      // Analyze package dependencies if package mapping is enabled
+      if (this.config.packageMapping) {
+        await this.analyzePackageDependencies();
       }
       
       // Process files
@@ -312,6 +322,158 @@ export class MeteorUpgrader {
     if (this.config.dry && changedFiles.length > 0) {
       console.log(chalk.blue('\n💡 Run with --write to apply changes'));
     }
+  }
+  
+  private async analyzePackageDependencies(): Promise<void> {
+    console.log(chalk.blue('📦 Analyzing package dependencies for Meteor 3 compatibility\n'));
+    
+    try {
+      // Load package mapping
+      await this.packageMappingService.loadMapping();
+      
+      if (!this.packageMappingService.isLoaded()) {
+        console.log(chalk.yellow('⚠️  Package mapping not found. Skipping package analysis.'));
+        return;
+      }
+      
+      // Detect packages from package.json
+      const detectedPackages = await this.detectMeteorPackages();
+      
+      if (detectedPackages.length === 0) {
+        console.log(chalk.gray('No Meteor packages detected in package.json'));
+        return;
+      }
+      
+      // Generate migration report
+      const migrationReport = this.packageMappingService.generateMigrationReport(detectedPackages);
+      
+      // Display results
+      this.displayPackageAnalysis(migrationReport, detectedPackages);
+      
+    } catch (error) {
+      console.warn(chalk.yellow(`Package analysis failed: ${error instanceof Error ? error.message : error}`));
+    }
+  }
+  
+  private async detectMeteorPackages(): Promise<string[]> {
+    const packageJsonPath = join(process.cwd(), 'package.json');
+    const meteorPackagesPath = join(process.cwd(), '.meteor', 'packages');
+    const detectedPackages: string[] = [];
+    
+    try {
+      // Check package.json for meteor packages
+      const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8'));
+      const allDeps = {
+        ...packageJson.dependencies,
+        ...packageJson.devDependencies,
+      };
+      
+      for (const [name] of Object.entries(allDeps)) {
+        if (name.includes(':') || name.startsWith('meteor/')) {
+          detectedPackages.push(name);
+        }
+      }
+      
+      // Check .meteor/packages file if it exists
+      try {
+        const packagesContent = await fs.readFile(meteorPackagesPath, 'utf8');
+        const meteorPackages = packagesContent
+          .split('\n')
+          .map(line => line.trim())
+          .filter(line => line && !line.startsWith('#'))
+          .map(line => line.includes('@') ? line.substring(0, line.indexOf('@')) : line);
+        
+        for (const pkg of meteorPackages) {
+          if (!detectedPackages.includes(pkg)) {
+            detectedPackages.push(pkg);
+          }
+        }
+      } catch {
+        // .meteor/packages doesn't exist, that's ok
+      }
+      
+    } catch (error) {
+      console.warn(chalk.yellow(`Could not analyze package dependencies: ${error instanceof Error ? error.message : error}`));
+    }
+    
+    return detectedPackages.filter(pkg => this.packageMappingService.getPackageInfo(pkg) !== null);
+  }
+  
+  private displayPackageAnalysis(migrationReport: any, detectedPackages: string[]): void {
+    console.log(chalk.gray(`Found ${detectedPackages.length} Meteor packages in your project\n`));
+    
+    if (migrationReport.problemPackages === 0) {
+      console.log(chalk.green('🎉 All detected packages appear to be compatible with Meteor 3!'));
+      return;
+    }
+    
+    console.log(chalk.yellow(`⚠️  Found ${migrationReport.problemPackages} packages that may need attention:\n`));
+    
+    // Group by status
+    const byStatus = migrationReport.packageIssues.reduce((acc: any, issue: any) => {
+      if (!acc[issue.status]) acc[issue.status] = [];
+      acc[issue.status].push(issue);
+      return acc;
+    }, {});
+    
+    // Display deprecated packages
+    if (byStatus.deprecated) {
+      console.log(chalk.red('🚫 Deprecated packages:'));
+      byStatus.deprecated.forEach((issue: any) => {
+        console.log(chalk.red(`  • ${issue.packageName}`));
+        const packageInfo = this.packageMappingService.getPackageInfo(issue.packageName);
+        if (packageInfo?.versionBump) {
+          console.log(chalk.gray(`    Version required: ${packageInfo.versionBump}+`));
+        }
+        const suggestions = this.packageMappingService.getMigrationSuggestions(issue.packageName);
+        if (suggestions.length > 0) {
+          console.log(chalk.gray(`    Suggested alternatives: ${suggestions.join(', ')}`));
+        }
+        console.log(chalk.gray(`    ${issue.notes}`));
+        console.log();
+      });
+    }
+    
+    // Display legacy packages
+    if (byStatus.legacy) {
+      console.log(chalk.yellow('⚡ Legacy packages (may need updates):'));
+      byStatus.legacy.forEach((issue: any) => {
+        console.log(chalk.yellow(`  • ${issue.packageName}`));
+        const packageInfo = this.packageMappingService.getPackageInfo(issue.packageName);
+        if (packageInfo?.versionBump) {
+          console.log(chalk.gray(`    Version required: ${packageInfo.versionBump}+`));
+        }
+        const suggestions = this.packageMappingService.getMigrationSuggestions(issue.packageName);
+        if (suggestions.length > 0) {
+          console.log(chalk.gray(`    Suggested alternatives: ${suggestions.join(', ')}`));
+        }
+        console.log(chalk.gray(`    ${issue.notes}`));
+        console.log();
+      });
+    }
+    
+    // Display replaced packages
+    if (byStatus.replaced) {
+      console.log(chalk.blue('🔄 Replaced packages:'));
+      byStatus.replaced.forEach((issue: any) => {
+        console.log(chalk.blue(`  • ${issue.packageName}`));
+        const packageInfo = this.packageMappingService.getPackageInfo(issue.packageName);
+        if (packageInfo?.versionBump) {
+          console.log(chalk.gray(`    Version required: ${packageInfo.versionBump}+`));
+        }
+        const suggestions = this.packageMappingService.getMigrationSuggestions(issue.packageName);
+        if (suggestions.length > 0) {
+          console.log(chalk.gray(`    Use instead: ${suggestions.join(', ')}`));
+        }
+        if (issue.automaticMigration) {
+          console.log(chalk.green('    ✓ Automatic migration available'));
+        }
+        console.log(chalk.gray(`    ${issue.notes}`));
+        console.log();
+      });
+    }
+    
+    console.log(chalk.blue('💡 For detailed migration guides, see: https://docs.meteor.com/changelog.html#meteor-3-0\n'));
   }
   
   private async ensureDirectoryExists(dirPath: string): Promise<void> {

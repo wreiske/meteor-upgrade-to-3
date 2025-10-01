@@ -15,6 +15,7 @@ Meteor 3 replaces Fibers with standard Promises and introduces async versions of
   - `Meteor.user() → await Meteor.userAsync()`
   - `alanning:roles → meteor/roles` with async API
   - Generic `cb(err, res)` → `await` via `Meteor.promisify` (where helpful)
+- 📦 **Package compatibility analysis**: automatically detects your packages and provides Meteor 3 migration guidance
 - 🧠 **Scope-aware**: adds `async` to the nearest function, or uses `.then/.catch` if you prefer
 - 🧹 **Formatting**: optional Prettier + ESLint `--fix` pass
 - 🧪 **Dry runs** and HTML **reports** of every change
@@ -131,6 +132,71 @@ The CLI includes these built-in transform plugins:
 - **meteor-user-async**: `Meteor.user` → `Meteor.userAsync`
 - **roles-migration**: `alanning:roles` → `meteor/roles` with async API
 - **callback-to-await**: Callback patterns → `async/await` (planned)
+
+### Package Migration Mapping
+
+The tool includes a comprehensive package mapping system that analyzes your project's dependencies and provides migration guidance for Meteor 3 compatibility. This feature automatically detects packages in your `package.json` and `.meteor/packages` files and provides status information and migration suggestions.
+
+#### Package Status Types
+
+- **ok**: Package works with Meteor 3 without changes
+- **legacy**: Package may need updates but should work
+- **deprecated**: Package is no longer maintained
+- **replaced**: Package has been superseded or integrated into Meteor core
+- **incompatible**: Package will not work with Meteor 3
+
+#### Package Mapping File Format
+
+The `package-mapping.json` file in the repository root contains verified migration information for well-known packages:
+
+```json
+{
+  "version": "1.0.0",
+  "packages": {
+    "alanning:roles": {
+      "status": "replaced",
+      "suggest": ["meteor/roles"],
+      "notes": "Built into Meteor 3 core. Update imports from 'meteor/alanning:roles' to 'meteor/roles' and use async versions of methods.",
+      "migrationComplexity": "medium",
+      "automaticMigration": true,
+      "category": "authentication"
+    },
+    "some-package:example": {
+      "status": "legacy",
+      "suggest": [],
+      "versionBump": "2.1.0",
+      "notes": "Requires version 2.1.0+ for Meteor 3 compatibility. Update to the latest version.",
+      "migrationComplexity": "low",
+      "automaticMigration": false,
+      "category": "other"
+    }
+  }
+}
+```
+
+#### Contributing Package Mappings
+
+**Important**: Only add packages with verified Meteor 3 compatibility information. Do not make assumptions about package compatibility.
+
+To contribute package migration information:
+
+1. **Verify compatibility** by testing the package with Meteor 3
+2. **Add or update entries** in `package-mapping.json` only for confirmed cases
+3. **Follow the schema** defined in `package-mapping.schema.json`
+4. **Test your changes** by running the tool on a project that uses the packages
+5. **Include these fields** for each package:
+   - `status`: Current compatibility status
+   - `suggest`: Array of recommended alternatives (empty if just needs version bump)
+   - `versionBump`: Minimum version required for Meteor 3 (optional)
+   - `notes`: Migration guidance and context
+   - `migrationComplexity`: "low", "medium", or "high"
+   - `automaticMigration`: Whether automatic migration is available
+   - `category`: Package category for organization
+
+#### CLI Options
+
+- `--no-package-mapping`: Disable package mapping analysis
+- `--package-mapping-path <path>`: Use a custom package mapping file
 
 ### Contributing
 
